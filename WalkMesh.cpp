@@ -191,7 +191,14 @@ void WalkMesh::walk_in_triangle(WalkPoint const &start, glm::vec3 const &step, W
 				time = times[i];
 			}
 		}
-		end.weights = start.weights + v*glm::vec3(time);	
+		end.weights = start.weights + v*glm::vec3(time);
+		if (end.weights.x == 0) {
+			end.weights = glm::vec3(end.weights.y, end.weights.z, 0.f);
+			end.indices = glm::vec3(end.indices.y, end.indices.z, end.indices.x);
+		} else if (end.weights.y == 0) {
+			end.weights = glm::vec3(end.weights.z, end.weights.x, 0.f);
+			end.indices = glm::vec3(end.indices.z, end.indices.x, end.indices.y);
+		}
 	}
 
 	//Remember: our convention is that when a WalkPoint is on an edge,
