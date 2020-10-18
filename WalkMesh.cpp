@@ -226,8 +226,8 @@ bool WalkMesh::cross_edge(WalkPoint const &start, WalkPoint *end_, glm::quat *ro
 	//  TODO: set end's weights and indicies on that triangle:
 		end.indices = glm::vec3(start.indices.y, start.indices.x, f->second);
 		end.weights = glm::vec3(start.weights.y, start.weights.x, start.weights.z);
-		glm::vec3 start_normal = glm::cross(b - a, c - a);
-		glm::vec3 end_normal = glm::cross(a - b, vertices[f->second] - b);
+		glm::vec3 start_normal = glm::normalize(glm::cross(b - a, c - a));
+		glm::vec3 end_normal = glm::normalize(glm::cross(a - b, vertices[f->second] - b));
 		rotation = glm::rotation(start_normal, end_normal);
 		return true;
 	}
