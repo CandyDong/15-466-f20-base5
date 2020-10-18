@@ -6,6 +6,9 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <iostream>
+#include "glm/ext.hpp"
+#include "glm/gtx/string_cast.hpp"
 
 //"WalkPoint" represents location on the WalkMesh as barycentric coordinates on a triangle:
 struct WalkPoint {
@@ -68,6 +71,7 @@ struct WalkMesh {
 	glm::vec3 to_world_point(WalkPoint const &wp) const {
 		//if you were looking here for the lesson solution, well, here you go:
 		// (but please do make sure you understand what this is doing)
+		// std::cout << "[to_world_point]wp.indices: " + glm::to_string(wp.indices) << std::endl;
 		return wp.weights.x * vertices[wp.indices.x]
 		     + wp.weights.y * vertices[wp.indices.y]
 		     + wp.weights.z * vertices[wp.indices.z];

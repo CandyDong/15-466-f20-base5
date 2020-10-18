@@ -144,6 +144,8 @@ void WalkMesh::walk_in_triangle(WalkPoint const &start, glm::vec3 const &step, W
 	glm::vec3 const &a = vertices[start.indices.x];
 	glm::vec3 const &b = vertices[start.indices.y];
 	glm::vec3 const &c = vertices[start.indices.z];
+
+	end.indices = start.indices;
 	
 	glm::vec3 start_world = start.weights.x * a
 		             + start.weights.y * b
@@ -177,6 +179,7 @@ void WalkMesh::walk_in_triangle(WalkPoint const &start, glm::vec3 const &step, W
 	glm::vec3 v = end.weights - start.weights;
 	
 	if (end.weights.x >= 0.0f && end.weights.y >= 0.0f && end.weights.z >= 0.0f) {
+		// std::cout << "[walk_in_triangle]end point inside; return; " << std::endl; 
 		time = 1.0f;
 	} else {
 		std::vector<float> times = {-start.weights.x / v.x, 
@@ -192,13 +195,18 @@ void WalkMesh::walk_in_triangle(WalkPoint const &start, glm::vec3 const &step, W
 			}
 		}
 		end.weights = start.weights + v*glm::vec3(time);
-		if (end.weights.x == 0) {
+		// std::cout << "[walk_in_triangle]raw end weights: " + glm::to_string(end.weights)  << std::endl;
+		if (time == times[0]) {
 			end.weights = glm::vec3(end.weights.y, end.weights.z, 0.f);
 			end.indices = glm::vec3(end.indices.y, end.indices.z, end.indices.x);
-		} else if (end.weights.y == 0) {
+		} else if (time == times[1]) {
 			end.weights = glm::vec3(end.weights.z, end.weights.x, 0.f);
 			end.indices = glm::vec3(end.indices.z, end.indices.x, end.indices.y);
+		} else {
+			end.weights.z = 0.0f;
 		}
+		// std::cout << "[walk_in_triangle]end point reaches egde; end.weights: " 
+		// 				+ glm::to_string(end.weights) << std::endl; 
 	}
 
 	//Remember: our convention is that when a WalkPoint is on an edge,
@@ -212,9 +220,8 @@ bool WalkMesh::cross_edge(WalkPoint const &start, WalkPoint *end_, glm::quat *ro
 	assert(rotation_);
 	auto &rotation = *rotation_;
 
+	// std::cout << "[cross_edge]start.weights=" + glm::to_string(start.weights) << std::endl;
 	assert(start.weights.z == 0.0f); //*must* be on an edge.
-	glm::uvec2 edge = glm::uvec2(start.indices);
-
 	glm::vec3 const &a = vertices[start.indices.x];
 	glm::vec3 const &b = vertices[start.indices.y];
 	glm::vec3 const &c = vertices[start.indices.z];
