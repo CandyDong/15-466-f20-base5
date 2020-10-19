@@ -166,6 +166,7 @@ for obj in bpy.data.objects:
 		ac =  mesh.vertices[poly.vertices[2]].co - mesh.vertices[poly.vertices[0]].co
 		out = ab.cross(ac).normalized()
 		d = poly.normal.dot(out)
+		print("out: " + str(out) + ", d: " + str(d))
 		assert(d > 0.9)
 
 		for i in range(0,3):

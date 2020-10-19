@@ -15,23 +15,47 @@
 
 #include <random>
 
-GLuint phonebank_meshes_for_lit_color_texture_program = 0;
-Load< MeshBuffer > phonebank_meshes(LoadTagDefault, []() -> MeshBuffer const * {
-	MeshBuffer const *ret = new MeshBuffer(data_path("phone-bank.pnct"));
-	phonebank_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
+// GLuint phonebank_meshes_for_lit_color_texture_program = 0;
+GLuint mygame_meshes_for_lit_color_texture_program = 0;
+// Load< MeshBuffer > phonebank_meshes(LoadTagDefault, []() -> MeshBuffer const * {
+// 	MeshBuffer const *ret = new MeshBuffer(data_path("phone-bank.pnct"));
+// 	phonebank_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
+// 	return ret;
+// });
+
+Load< MeshBuffer > mygame_meshes(LoadTagDefault, []() -> MeshBuffer const * {
+	MeshBuffer const *ret = new MeshBuffer(data_path("mygame.pnct"));
+	mygame_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
 	return ret;
 });
 
-Load< Scene > phonebank_scene(LoadTagDefault, []() -> Scene const * {
-	return new Scene(data_path("phone-bank.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
-		Mesh const &mesh = phonebank_meshes->lookup(mesh_name);
+// Load< Scene > phonebank_scene(LoadTagDefault, []() -> Scene const * {
+// 	return new Scene(data_path("phone-bank.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
+// 		Mesh const &mesh = phonebank_meshes->lookup(mesh_name);
+
+// 		scene.drawables.emplace_back(transform);
+// 		Scene::Drawable &drawable = scene.drawables.back();
+
+// 		drawable.pipeline = lit_color_texture_program_pipeline;
+
+// 		drawable.pipeline.vao = phonebank_meshes_for_lit_color_texture_program;
+// 		drawable.pipeline.type = mesh.type;
+// 		drawable.pipeline.start = mesh.start;
+// 		drawable.pipeline.count = mesh.count;
+
+// 	});
+// });
+
+Load< Scene > mygame_scene(LoadTagDefault, []() -> Scene const * {
+	return new Scene(data_path("mygame.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
+		Mesh const &mesh = mygame_meshes->lookup(mesh_name);
 
 		scene.drawables.emplace_back(transform);
 		Scene::Drawable &drawable = scene.drawables.back();
 
 		drawable.pipeline = lit_color_texture_program_pipeline;
 
-		drawable.pipeline.vao = phonebank_meshes_for_lit_color_texture_program;
+		drawable.pipeline.vao = mygame_meshes_for_lit_color_texture_program;
 		drawable.pipeline.type = mesh.type;
 		drawable.pipeline.start = mesh.start;
 		drawable.pipeline.count = mesh.count;
@@ -40,13 +64,19 @@ Load< Scene > phonebank_scene(LoadTagDefault, []() -> Scene const * {
 });
 
 WalkMesh const *walkmesh = nullptr;
-Load< WalkMeshes > phonebank_walkmeshes(LoadTagDefault, []() -> WalkMeshes const * {
-	WalkMeshes *ret = new WalkMeshes(data_path("phone-bank.w"));
+// Load< WalkMeshes > phonebank_walkmeshes(LoadTagDefault, []() -> WalkMeshes const * {
+// 	WalkMeshes *ret = new WalkMeshes(data_path("phone-bank.w"));
+// 	walkmesh = &ret->lookup("WalkMesh");
+// 	return ret;
+// });
+
+Load< WalkMeshes > mygame_walkmeshes(LoadTagDefault, []() -> WalkMeshes const * {
+	WalkMeshes *ret = new WalkMeshes(data_path("mygame.w"));
 	walkmesh = &ret->lookup("WalkMesh");
 	return ret;
 });
 
-PlayMode::PlayMode() : scene(*phonebank_scene) {
+PlayMode::PlayMode() : scene(*mygame_scene) {
 	//create a player transform:
 	scene.transforms.emplace_back();
 	player.transform = &scene.transforms.back();
