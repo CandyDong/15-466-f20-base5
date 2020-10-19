@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
+    <generated />
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
+      <configuration PROFILE_NAME="Debug-Remote Host" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Remote Host" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="d96b0b88-ab7b-476f-a82f-cebaee220b1b" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/PlayMode.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/PlayMode.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PlayMode.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/PlayMode.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/mygame.pnct" beforeDir="false" afterPath="$PROJECT_DIR$/dist/mygame.pnct" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/mygame.scene" beforeDir="false" afterPath="$PROJECT_DIR$/dist/mygame.scene" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scenes/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/scenes/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scenes/mygame.blend" beforeDir="false" afterPath="$PROJECT_DIR$/scenes/mygame.blend" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IgnoredFileRootStore">
+    <option name="generatedRoots">
+      <set>
+        <option value="$PROJECT_DIR$/.idea" />
+      </set>
+    </option>
+  </component>
+  <component name="ProjectId" id="1j46RHXqMRyMyD5GTjV3JMy7cRs" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="preferences.customizations" />
+  </component>
+  <component name="SshConsoleOptionsProvider">
+    <option name="myEncoding" value="UTF-8" />
+    <option name="myConnectionType" value="DEPLOYMENT_SERVER" />
+    <option name="myConnectionId" value="8726ff20-47dd-4028-ab34-ca378a4c7b5d" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d96b0b88-ab7b-476f-a82f-cebaee220b1b" name="Default Changelist" comment="" />
+      <created>1603051006317</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1603051006317</updated>
+      <workItem from="1603051011434" duration="9099000" />
+      <workItem from="1603142121406" duration="5299000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="320" y="99" key="#C/C++" timestamp="1603141553398">
+      <screen x="0" y="23" width="1440" height="822" />
+    </state>
+    <state x="320" y="99" key="#C/C++/0.23.1440.822/1440.23.1920.1057@0.23.1440.822" timestamp="1603141553398" />
+    <state x="400" y="191" width="639" height="486" key="find.popup" timestamp="1603059486297">
+      <screen x="0" y="23" width="1440" height="822" />
+    </state>
+    <state x="400" y="191" width="639" height="486" key="find.popup/0.23.1440.822@0.23.1440.822" timestamp="1603059486297" />
+  </component>
+</project>
