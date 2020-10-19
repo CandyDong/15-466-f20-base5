@@ -51,6 +51,16 @@ PlayMode::PlayMode() : scene(*phonebank_scene) {
 	scene.transforms.emplace_back();
 	player.transform = &scene.transforms.back();
 
+	//create a dog transform:
+  for (auto &transform : scene.transforms) {
+    if (transform.name == "dog") dog.transform = &transform;
+    if (transform.name.rfind("toy", 0) == 0) toys.emplace_back(&transform);
+  }
+  if (dog.transform == nullptr) throw std::runtime_error("Ground not found.");
+  for (int i = 0; i < toys_count; i++) {
+    if (toys[i] == nullptr) throw std::runtime_error("A toy is not found.");
+  }
+
 	//create a player camera attached to a child of the player transform:
 	scene.transforms.emplace_back();
 	scene.cameras.emplace_back(&scene.transforms.back());
@@ -67,6 +77,7 @@ PlayMode::PlayMode() : scene(*phonebank_scene) {
 
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
+	dog.at = walkmesh->nearest_walk_point(dog.transform->position);
 
 }
 
@@ -95,6 +106,10 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			down.downs += 1;
 			down.pressed = true;
 			return true;
+		} else if (evt.key.keysym.sym == SDLK_SPACE) {
+		  space.downs += 1;
+		  space.pressed = true;
+		  return true;
 		}
 	} else if (evt.type == SDL_KEYUP) {
 		if (evt.key.keysym.sym == SDLK_a) {
@@ -109,6 +124,9 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		} else if (evt.key.keysym.sym == SDLK_s) {
 			down.pressed = false;
 			return true;
+		} else if (evt.key.keysym.sym == SDLK_SPACE) {
+		  space.pressed = false;
+		  return true;
 		}
 	} else if (evt.type == SDL_MOUSEBUTTONDOWN) {
 		if (SDL_GetRelativeMouseMode() == SDL_FALSE) {
@@ -122,7 +140,9 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 				-evt.motion.yrel / float(window_size.y)
 			);
 			glm::vec3 up = walkmesh->to_world_smooth_normal(player.at);
+			glm::vec3 up_dog = walkmesh->to_world_smooth_normal(dog.at);
 			player.transform->rotation = glm::angleAxis(-motion.x * player.camera->fovy, up) * player.transform->rotation;
+      dog.transform->rotation = glm::angleAxis(-motion.x * player.camera->fovy, up_dog) * dog.transform->rotation;
 
 			float pitch = glm::pitch(player.camera->transform->rotation);
 			pitch += motion.y * player.camera->fovy;
@@ -154,33 +174,48 @@ void PlayMode::update(float elapsed) {
 
 		//get move in world coordinate system:
 		glm::vec3 remain = player.transform->make_local_to_world() * glm::vec4(move.x, move.y, 0.0f, 0.0f);
+		glm::vec3 remain_dog = dog.transform->make_local_to_world() * glm::vec4(move.x, move.y, 0.0f, 0.0f);
 
 		//using a for() instead of a while() here so that if walkpoint gets stuck in
 		// some awkward case, code will not infinite loop:
 		for (uint32_t iter = 0; iter < 10; ++iter) {
 			// std::cout << "[update]remain: " + glm::to_string(remain) << std::endl;
 			if (remain == glm::vec3(0.0f)) break;
+			if (remain_dog == glm::vec3(0.0f)) break;
 			WalkPoint end;
+			WalkPoint end_dog;
 			float time;
+			float time_dog;
 			walkmesh->walk_in_triangle(player.at, remain, &end, &time);
+			walkmesh->walk_in_triangle(dog.at, remain_dog, &end_dog, &time_dog);
 			player.at = end;
+			dog.at = end_dog;
 			if (time == 1.0f) {
 				//finished within triangle:
 				remain = glm::vec3(0.0f);
 				// std::cout << "[update]finished within triangle;" << std::endl;
 				break;
 			}
+			if (time_dog == 1.0f) {
+			  remain_dog = glm::vec3(0.0f);
+			  break;
+			}
 			//some step remains:
 			remain *= (1.0f - time);
+			remain_dog *= (1.0f - time);
 			//try to step over edge:
 			glm::quat rotation;
+			glm::quat rotation_dog;
 			// std::cout << "[update]try to step over edge" << std::endl;
-			if (walkmesh->cross_edge(player.at, &end, &rotation)) {
+			if (walkmesh->cross_edge(player.at, &end, &rotation) &&
+			    walkmesh->cross_edge(dog.at, &end_dog, &rotation_dog)) {
 				// std::cout << "[update]crossing an edge" << std::endl;
 				//stepped to a new triangle:
 				player.at = end;
+				dog.at = end_dog;
 				//rotate step to follow surface:
 				remain = rotation * remain;
+				remain_dog = rotation_dog * remain_dog;
 			} else {
 				// std::cout << "[update]ran into a wall" << std::endl;
 				//ran into a wall, bounce / slide along it:
@@ -191,6 +226,13 @@ void PlayMode::update(float elapsed) {
 				glm::vec3 normal = glm::normalize(glm::cross(b-a, c-a));
 				glm::vec3 in = glm::cross(normal, along);
 
+        glm::vec3 const &a_dog = walkmesh->vertices[dog.at.indices.x];
+        glm::vec3 const &b_dog = walkmesh->vertices[dog.at.indices.y];
+        glm::vec3 const &c_dog = walkmesh->vertices[dog.at.indices.z];
+        glm::vec3 along_dog = glm::normalize(b_dog-a_dog);
+        glm::vec3 normal_dog = glm::normalize(glm::cross(b_dog-a_dog, c_dog-a_dog));
+        glm::vec3 in_dog = glm::cross(normal_dog, along_dog);
+
 				//check how much 'remain' is pointing out of the triangle:
 				float d = glm::dot(remain, in);
 				if (d < 0.0f) {
@@ -200,15 +242,24 @@ void PlayMode::update(float elapsed) {
 					//if it's just pointing along the edge, bend slightly away from wall:
 					remain += 0.01f * d * in;
 				}
+        float d_dog = glm::dot(remain_dog, in_dog);
+        if (d_dog < 0.0f) {
+          //bounce off of the wall:
+          remain_dog += (-1.25f * d_dog) * in_dog;
+        } else {
+          //if it's just pointing along the edge, bend slightly away from wall:
+          remain_dog += 0.01f * d_dog * in_dog;
+        }
 			}
 		}
 
-		if (remain != glm::vec3(0.0f)) {
+		if (remain != glm::vec3(0.0f) || remain_dog != glm::vec3(0.0f)) {
 			std::cout << "NOTE: code used full iteration budget for walking." << std::endl;
 		}
 
 		//update player's position to respect walking:
 		player.transform->position = walkmesh->to_world_point(player.at);
+		dog.transform->position = walkmesh->to_world_point(dog.at);
 		
 		{ //update player's rotation to respect local (smooth) up-vector:
 			glm::quat adjust = glm::rotation(
@@ -218,6 +269,14 @@ void PlayMode::update(float elapsed) {
 			player.transform->rotation = glm::normalize(adjust * player.transform->rotation);
 		}
 
+    {
+      glm::quat adjust_dog = glm::rotation(
+              dog.transform->rotation * glm::vec3(0.0f, 0.0f, 1.0f),
+              walkmesh->to_world_smooth_normal(dog.at)
+              );
+      dog.transform->rotation = glm::normalize(adjust_dog * dog.transform->rotation);
+    }
+
 		// glm::mat4x3 frame = player.camera->transform->make_local_to_parent();
 		// glm::vec3 right = frame[0];
 		// //glm::vec3 up = frame[1];
@@ -226,11 +285,23 @@ void PlayMode::update(float elapsed) {
 		// player.camera->transform->position += move.x * right + move.y * forward;
 	}
 
+	for (int i = 0; i < toys_count; i++) {
+	  float x_diff = std::abs(dog.transform->position.x - toys[i]->position.x);
+	  float y_diff = std::abs(dog.transform->position.y - toys[i]->position.y);
+	  if (x_diff <= smell_range && y_diff <= smell_range) {
+	    if (space.pressed) {
+	      std::cout << "smelled!" + std::to_string(x_diff) + " " + std::to_string(y_diff)<< std::endl;
+	    }
+	    space.pressed = false;
+	  }
+	}
+
 	//reset button press counters:
 	left.downs = 0;
 	right.downs = 0;
 	up.downs = 0;
 	down.downs = 0;
+	space.downs = 0;
 }
 
 void PlayMode::draw(glm::uvec2 const &drawable_size) {
