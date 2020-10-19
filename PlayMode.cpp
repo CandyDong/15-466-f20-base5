@@ -49,6 +49,7 @@ Load< MeshBuffer > mygame_meshes(LoadTagDefault, []() -> MeshBuffer const * {
 Load< Scene > mygame_scene(LoadTagDefault, []() -> Scene const * {
 	return new Scene(data_path("mygame.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
 		Mesh const &mesh = mygame_meshes->lookup(mesh_name);
+		std::cout << "loading mesh: " + mesh_name + ", transform: " + glm::to_string(transform->position) << std::endl;
 
 		scene.drawables.emplace_back(transform);
 		Scene::Drawable &drawable = scene.drawables.back();
@@ -97,6 +98,7 @@ PlayMode::PlayMode() : scene(*mygame_scene) {
 
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
+	// std::cout << "player.at: " + glm::to_string(player.transform->position) << std::endl;
 
 }
 

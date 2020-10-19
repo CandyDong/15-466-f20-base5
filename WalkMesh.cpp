@@ -83,9 +83,16 @@ WalkPoint WalkMesh::nearest_walk_point(glm::vec3 const &world_point) const {
 		//get barycentric coordinates of closest point in the plane of (a,b,c):
 		glm::vec3 coords = barycentric_weights(a,b,c, world_point);
 
+		// std::cout << "[nearest_walk_point] tri: (" + 
+		// 				glm::to_string(a) + ", " +
+		// 				glm::to_string(b) + ", " +
+		// 				glm::to_string(c) + ") " << std::endl;
+
 		//is that point inside the triangle?
 		if (coords.x >= 0.0f && coords.y >= 0.0f && coords.z >= 0.0f) {
 			//yes, point is inside triangle.
+			// std::cout << "[nearest_walk_point] point inside triangle, pt=" 
+			// 			+ glm::to_string(to_world_point(WalkPoint(tri, coords)))  << std::endl;
 			float dis2 = glm::length2(world_point - to_world_point(WalkPoint(tri, coords)));
 			if (dis2 < closest_dis2) {
 				closest_dis2 = dis2;
@@ -114,6 +121,8 @@ WalkPoint WalkMesh::nearest_walk_point(glm::vec3 const &world_point) const {
 					pt = glm::mix(a, b, amt);
 					coords = glm::vec3(1.0f - amt, amt, 0.0f);
 				}
+				// std::cout << "[nearest_walk_point] point outside triangle, pt=" 
+				// 		+ glm::to_string(pt)  << std::endl;
 
 				float dis2 = glm::length2(world_point - pt);
 				if (dis2 < closest_dis2) {
@@ -130,6 +139,8 @@ WalkPoint WalkMesh::nearest_walk_point(glm::vec3 const &world_point) const {
 	assert(closest.indices.x < vertices.size());
 	assert(closest.indices.y < vertices.size());
 	assert(closest.indices.z < vertices.size());
+	// std::cout << "[nearest_walk_point]" + glm::to_string(to_world_point(closest))
+	// 									<< std::endl;
 	return closest;
 }
 
@@ -205,8 +216,8 @@ void WalkMesh::walk_in_triangle(WalkPoint const &start, glm::vec3 const &step, W
 		} else {
 			end.weights.z = 0.0f;
 		}
-		// std::cout << "[walk_in_triangle]end point reaches egde; end.weights: " 
-		// 				+ glm::to_string(end.weights) << std::endl; 
+		std::cout << "[walk_in_triangle]end point reaches egde; end.weights: " 
+						+ glm::to_string(end.weights) << std::endl; 
 	}
 
 	//Remember: our convention is that when a WalkPoint is on an edge,
