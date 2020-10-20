@@ -29,6 +29,10 @@ Load< MeshBuffer > mygame_meshes(LoadTagDefault, []() -> MeshBuffer const * {
 	return ret;
 });
 
+Load< Sound::Sample > sniff_sample(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("sniff.wav"));
+});
+
 // Load< Scene > phonebank_scene(LoadTagDefault, []() -> Scene const * {
 // 	return new Scene(data_path("phone-bank.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
 // 		Mesh const &mesh = phonebank_meshes->lookup(mesh_name);
@@ -291,6 +295,7 @@ void PlayMode::update(float elapsed) {
 			float x_diff = std::abs(player.transform->position.x - toys[i]->transform->position.x);
 			float y_diff = std::abs(player.transform->position.y - toys[i]->transform->position.y);
 			if (x_diff < smell_range && y_diff < smell_range) {
+				Sound::play(*sniff_sample, 1.0f, 0.0f);
 				if (!toys[i]->smelled) {
 					smelled_count++;
 					toys[i]->smelled = true;
