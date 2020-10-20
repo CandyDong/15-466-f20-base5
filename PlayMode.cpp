@@ -78,9 +78,25 @@ Load< WalkMeshes > mygame_walkmeshes(LoadTagDefault, []() -> WalkMeshes const * 
 });
 
 PlayMode::PlayMode() : scene(*mygame_scene) {
+  	// find dog transform:
+	for (auto &transform : scene.transforms) {
+		if (transform.name == "dog") dog = &transform;
+		if (transform.name == "baby") baby = &transform;
+		if (transform.name.rfind("toy", 0) == 0) toys.emplace_back(&transform);
+	}
+	if (dog == nullptr) throw std::runtime_error("dog not found.");
+	if (baby == nullptr) throw std::runtime_error("baby not found");
+	for (int i = 0; i < toys_count; i++) {
+		if (toys[i] == nullptr) throw std::runtime_error("A toy is not found.");
+	}
+	
 	//create a player transform:
 	scene.transforms.emplace_back();
 	player.transform = &scene.transforms.back();
+	player.transform->rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	dog->parent = player.transform;
+	dog->position = glm::vec3(0.0f, 0.5f, 0.8f);
+	dog->rotation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
 	//create a player camera attached to a child of the player transform:
 	scene.transforms.emplace_back();
@@ -90,11 +106,11 @@ PlayMode::PlayMode() : scene(*mygame_scene) {
 	player.camera->near = 0.01f;
 	player.camera->transform->parent = player.transform;
 
-	//player's eyes are 1.8 units above the ground:
-	player.camera->transform->position = glm::vec3(0.0f, 0.0f, 1.8f);
-
-	//rotate camera facing direction (-z) to player facing direction (+y):
-	player.camera->transform->rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	//player's eyes:
+	player.camera->transform->position = glm::vec3(0.0f, 0.0f, 2.0f);
+	
+	//rotate camera facing direction (-z) to player facing direction (+x):
+	player.camera->transform->rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 1.0f));
 
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
@@ -127,6 +143,10 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			down.downs += 1;
 			down.pressed = true;
 			return true;
+		} else if (evt.key.keysym.sym == SDLK_SPACE) {
+			space.downs += 1;
+			space.pressed = true;
+			return true;
 		}
 	} else if (evt.type == SDL_KEYUP) {
 		if (evt.key.keysym.sym == SDLK_a) {
@@ -141,6 +161,9 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		} else if (evt.key.keysym.sym == SDLK_s) {
 			down.pressed = false;
 			return true;
+		} else if (evt.key.keysym.sym == SDLK_SPACE) {
+			space.pressed = false;
+			return true;
 		}
 	} else if (evt.type == SDL_MOUSEBUTTONDOWN) {
 		if (SDL_GetRelativeMouseMode() == SDL_FALSE) {
@@ -153,7 +176,9 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 				evt.motion.xrel / float(window_size.y),
 				-evt.motion.yrel / float(window_size.y)
 			);
+			// std::cout << "motion: " + glm::to_string(motion) << std::endl;
 			glm::vec3 up = walkmesh->to_world_smooth_normal(player.at);
+			// std::cout << "up: " + glm::to_string(up) << std::endl;
 			player.transform->rotation = glm::angleAxis(-motion.x * player.camera->fovy, up) * player.transform->rotation;
 
 			float pitch = glm::pitch(player.camera->transform->rotation);
@@ -174,7 +199,7 @@ void PlayMode::update(float elapsed) {
 	//player walking:
 	{
 		//combine inputs into a move:
-		constexpr float PlayerSpeed = 3.0f;
+		constexpr float PlayerSpeed = 5.0f;
 		glm::vec2 move = glm::vec2(0.0f);
 		if (left.pressed && !right.pressed) move.x =-1.0f;
 		if (!left.pressed && right.pressed) move.x = 1.0f;
@@ -256,6 +281,22 @@ void PlayMode::update(float elapsed) {
 		// glm::vec3 forward = -frame[2];
 
 		// player.camera->transform->position += move.x * right + move.y * forward;
+	}
+
+	if (space.pressed) {
+		for (int i = 0; i < toys_count; i++) {
+			float x_diff = std::abs(player.transform->position.x - toys[i]->position.x);
+			float y_diff = std::abs(player.transform->position.y - toys[i]->position.y);
+			if (x_diff < smell_range && y_diff < smell_range) {
+				std::cout << "smelled" << std::endl;
+			}
+		}
+		float x_diff = std::abs(player.transform->position.x - baby->position.x);
+		float y_diff = std::abs(player.transform->position.y - baby->position.y);
+		if (x_diff < smell_range && y_diff < smell_range) {
+			std::cout << "found baby!" << std::endl;
+		}
+		space.pressed = false;
 	}
 
 	//reset button press counters:
