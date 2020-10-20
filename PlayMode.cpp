@@ -113,7 +113,7 @@ PlayMode::PlayMode() : scene(*mygame_scene) {
 	player.camera->transform->position = glm::vec3(0.0f, 0.0f, 2.0f);
 	
 	//rotate camera facing direction (-z) to player facing direction (+x):
-	player.camera->transform->rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 1.0f));
+	player.camera->transform->rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
@@ -356,7 +356,7 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 			glm::u8vec4(0xff, 0xff, 0xff, 0x00));
 
 		if (found_baby) {
-			lines.draw_text("Heyyy here you are!",
+			lines.draw_text("Heyyy here you are! Game over!",
 			                glm::vec3(-aspect + 0.1f * H, -0.5 + 0.1f * H, 0.0),
 			                glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
 			                glm::u8vec4(0xff, 0xff, 0xff, 0xff));
