@@ -37,11 +37,23 @@ struct PlayMode : Mode {
 		Scene::Camera *camera = nullptr;
 	} player;
 
-	std::vector < Scene::Transform* > toys;
+	struct Toy {
+			Toy (Scene::Transform *transform_) {
+				transform = transform_;
+			}
+			Scene::Transform *transform = nullptr;
+			bool smelled = false;
+	};
+
+	std::vector < Toy* > toys;
 	int toys_count = 3;
+
+	int smelled_count = 0;
+	bool found_baby = false;
+
+	float smell_range = 1.0f;
 
 	Scene::Transform *baby = nullptr;
 	Scene::Transform *dog = nullptr;
 
-	float smell_range = 0.7f;
 };

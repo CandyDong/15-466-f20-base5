@@ -82,12 +82,15 @@ PlayMode::PlayMode() : scene(*mygame_scene) {
 	for (auto &transform : scene.transforms) {
 		if (transform.name == "dog") dog = &transform;
 		if (transform.name == "baby") baby = &transform;
-		if (transform.name.rfind("toy", 0) == 0) toys.emplace_back(&transform);
+		if (transform.name.rfind("toy", 0) == 0) {
+			Toy *new_toy = new Toy(&transform);
+			toys.emplace_back(new_toy);
+		}
 	}
 	if (dog == nullptr) throw std::runtime_error("dog not found.");
 	if (baby == nullptr) throw std::runtime_error("baby not found");
 	for (int i = 0; i < toys_count; i++) {
-		if (toys[i] == nullptr) throw std::runtime_error("A toy is not found.");
+		if (toys[i]->transform == nullptr) throw std::runtime_error("A toy is not found.");
 	}
 	
 	//create a player transform:
@@ -285,16 +288,20 @@ void PlayMode::update(float elapsed) {
 
 	if (space.pressed) {
 		for (int i = 0; i < toys_count; i++) {
-			float x_diff = std::abs(player.transform->position.x - toys[i]->position.x);
-			float y_diff = std::abs(player.transform->position.y - toys[i]->position.y);
+			float x_diff = std::abs(player.transform->position.x - toys[i]->transform->position.x);
+			float y_diff = std::abs(player.transform->position.y - toys[i]->transform->position.y);
 			if (x_diff < smell_range && y_diff < smell_range) {
-				std::cout << "smelled" << std::endl;
+				if (!toys[i]->smelled) {
+					smelled_count++;
+					toys[i]->smelled = true;
+				}
 			}
+
 		}
 		float x_diff = std::abs(player.transform->position.x - baby->position.x);
 		float y_diff = std::abs(player.transform->position.y - baby->position.y);
 		if (x_diff < smell_range && y_diff < smell_range) {
-			std::cout << "found baby!" << std::endl;
+			found_baby = true;
 		}
 		space.pressed = false;
 	}
@@ -338,15 +345,43 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 		));
 
 		constexpr float H = 0.09f;
-		lines.draw_text("Mouse motion looks; WASD moves; escape ungrabs mouse",
+		lines.draw_text("Mouse motion looks; WASD moves; escape ungrabs mouse; Space smells",
 			glm::vec3(-aspect + 0.1f * H, -1.0 + 0.1f * H, 0.0),
 			glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
 			glm::u8vec4(0x00, 0x00, 0x00, 0x00));
 		float ofs = 2.0f / drawable_size.y;
-		lines.draw_text("Mouse motion looks; WASD moves; escape ungrabs mouse",
+		lines.draw_text("Mouse motion looks; WASD moves; escape ungrabs mouse; Space smells",
 			glm::vec3(-aspect + 0.1f * H + ofs, -1.0 + + 0.1f * H + ofs, 0.0),
 			glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
 			glm::u8vec4(0xff, 0xff, 0xff, 0x00));
+
+		if (found_baby) {
+			lines.draw_text("Heyyy here you are!",
+			                glm::vec3(-aspect + 0.1f * H, -0.5 + 0.1f * H, 0.0),
+			                glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+			                glm::u8vec4(0xff, 0xff, 0xff, 0xff));
+		} else if (smelled_count == toys_count) {
+			lines.draw_text("Something smells from the cellar...",
+							glm::vec3(-aspect + 0.1f * H, -0.5 + 0.1f * H, 0.0),
+							glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+							glm::u8vec4(0xff, 0xff, 0xff, 0xff));
+		} else if (smelled_count == toys_count - 1) {
+			lines.draw_text("Getting there! Only need one more!",
+							glm::vec3(-aspect + 0.1f * H, -0.5 + 0.1f * H, 0.0),
+							glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+							glm::u8vec4(0xff, 0xff, 0xff, 0xff));
+		} else if (smelled_count == toys_count - 2) {
+			lines.draw_text("Hmm.. Still need more clues...",
+							glm::vec3(-aspect + 0.1f * H, -0.5 + 0.1f * H, 0.0),
+							glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+							glm::u8vec4(0xff, 0xff, 0xff, 0xff));
+		} else {
+				lines.draw_text("Where is the baby? I need to smell more toys!",
+								glm::vec3(-aspect + 0.1f * H, -0.5 + 0.1f * H, 0.0),
+								glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+								glm::u8vec4(0xff, 0xff, 0xff, 0xff));
+		}
+
 	}
 	GL_ERRORS();
 }

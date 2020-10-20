@@ -1,8 +1,8 @@
-# (TODO: your game's title)
+# Babysmeller
 
-Author: (TODO: your name)
+Author: Qingyi Dong, Michelle Chang
 
-Design: (TODO: In two sentences or fewer, describe what is new and interesting about your game.)
+Design: A treasure hunting type game where you are a dog trying to find a baby.
 
 Screen Shot:
 
@@ -10,7 +10,11 @@ Screen Shot:
 
 How To Play:
 
-(TODO: describe the controls and (if needed) goals/strategy.)
+You are a dog living in a magnificent house. The owners have gave you the mission to babysit their baby while they are 
+away, but you need to find the baby first. Gather clues by smelling the baby's favorite toys. <br />
+- WASD to move
+- Drag to look
+- space to smell an object
 
 Sources: <br />
 Voxel assets created with [MagicaVoxel](https://ephtracy.github.io/) <br />
